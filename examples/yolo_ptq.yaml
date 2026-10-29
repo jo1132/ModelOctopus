@@ -1,0 +1,96 @@
+# Design recipe: requires implementation through M3.
+# COCO8 is a wiring test, not representative accuracy evidence.
+schema_version: 1
+project:
+  name: yolov8n-ptq-smoke
+  root: ../workspace
+environment_profiles:
+  training: train-cpu-yolo
+  quantization: quant-aimet
+  evaluation: onnx-cpu-yolo
+steps:
+  - id: data
+    kind: dataset.prepare
+    profile: training
+    params:
+      provider: ultralytics
+      name: coco8
+      task: detection
+      split_policy: provided_train_val
+      final_test_available: false
+      smoke_only: true
+      calibration: {source_split: train, count: 4, seed: 42}
+      transforms:
+        training: yolov8_detect_train_v1
+        evaluation: yolov8_detect_rgb640_eval_v1
+        calibration: yolov8_detect_rgb640_eval_v1
+      download: true
+
+  - id: model
+    kind: model.create
+    profile: training
+    params:
+      provider: ultralytics
+      architecture: yolov8n
+      task: detection
+      num_classes: 80
+      input_shape: [1, 3, 640, 640]
+      initialization:
+        kind: pretrained
+        weights: yolov8n_coco
+
+  - id: trained
+    kind: train.fit
+    profile: training
+    inputs: {model: '@model.model', dataset: '@data.dataset'}
+    params:
+      engine: ultralytics_native
+      mode: finetune
+      epochs: 1
+      batch_size: 2
+      amp: false
+      seed: 42
+      objective: {plugin: yolov8.native_detection}
+
+  - id: fp_export
+    kind: export.create
+    profile: training
+    inputs: {model: '@trained.model'}
+    params:
+      format: onnx
+      target: ort_cpu_fp32
+      shape_policy: fixed
+      exporter_profile: validated_yolov8_onnx_v1
+      output_semantics: decoded_pre_nms
+
+  - id: ptq
+    kind: compression.quantize
+    profile: quantization
+    inputs: {source: '@fp_export.artifact', dataset: '@data.dataset'}
+    params:
+      plugin: aimet_onnx.ptq
+      split: calibration
+      target: trt_int8_symmetric
+      weight_bits: 8
+      activation_bits: 8
+      estimator: minmax
+
+  - id: quality
+    kind: evaluation.compare
+    profile: evaluation
+    inputs:
+      reference: '@fp_export.artifact'
+      candidate: '@ptq.artifact'
+      dataset: '@data.dataset'
+    params:
+      split: val
+      runtime: onnxruntime
+      metrics: [map50_95, map50]
+      evaluator: pinned_yolov8_detection_v1
+      smoke_only: true
+
+  - id: graph
+    kind: graph.inspect
+    profile: evaluation
+    inputs: {artifact: '@ptq.artifact'}
+    params: {include_qdq: true, format: html}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "profile": "core-ci",
+  "python": "3.12.12",
+  "platform": "Linux-5.15.0-187-generic-x86_64-with-glibc2.41",
+  "packages": {
+    "pydantic": "2.12.3",
+    "PyYAML": "6.0.3"
+  },
+  "docker_cli": null,
+  "nvidia_smi": "/usr/bin/nvidia-smi",
+  "validation": "passed",
+  "status": "supported"
+}

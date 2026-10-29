@@ -1,0 +1,181 @@
+{
+  "$defs": {
+    "CalibrationSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "source_split": {
+          "const": "train",
+          "default": "train",
+          "title": "Source Split",
+          "type": "string"
+        },
+        "count": {
+          "exclusiveMinimum": 0,
+          "title": "Count",
+          "type": "integer"
+        },
+        "seed": {
+          "default": 42,
+          "title": "Seed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "count"
+      ],
+      "title": "CalibrationSpec",
+      "type": "object"
+    },
+    "TransformNames": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "training": {
+          "title": "Training",
+          "type": "string"
+        },
+        "evaluation": {
+          "title": "Evaluation",
+          "type": "string"
+        },
+        "calibration": {
+          "title": "Calibration",
+          "type": "string"
+        }
+      },
+      "required": [
+        "training",
+        "evaluation",
+        "calibration"
+      ],
+      "title": "TransformNames",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "provider": {
+      "title": "Provider",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "task": {
+      "default": "classification",
+      "enum": [
+        "classification",
+        "detection"
+      ],
+      "title": "Task",
+      "type": "string"
+    },
+    "revision": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Revision"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source"
+    },
+    "split_policy": {
+      "title": "Split Policy",
+      "type": "string"
+    },
+    "seed": {
+      "default": 42,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "download": {
+      "default": false,
+      "title": "Download",
+      "type": "boolean"
+    },
+    "cache": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cache"
+    },
+    "calibration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CalibrationSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "transforms": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TransformNames"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "final_test_available": {
+      "default": true,
+      "title": "Final Test Available",
+      "type": "boolean"
+    },
+    "smoke_only": {
+      "default": false,
+      "title": "Smoke Only",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "provider",
+    "name",
+    "split_policy"
+  ],
+  "title": "DatasetSpec",
+  "type": "object"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "profile": "quant-aimet",
+  "python": "3.12.12",
+  "platform": "Linux-5.15.0-187-generic-x86_64-with-glibc2.41",
+  "packages": {
+    "aimet-onnx": null,
+    "onnx": "1.23.2",
+    "onnxruntime": "1.31.1"
+  },
+  "docker_cli": null,
+  "nvidia_smi": "/usr/bin/nvidia-smi",
+  "validation": "not_run",
+  "status": "unverified_environment",
+  "reason": "DEPENDENCY_NOT_INSTALLED"
+}

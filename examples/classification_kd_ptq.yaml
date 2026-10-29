@@ -1,0 +1,131 @@
+# Design recipe: requires implementation through M5; this is not executable today.
+schema_version: 1
+project:
+  name: classification-kd-ptq
+  root: ../workspace
+environment_profiles:
+  training: train-cpu
+  quantization: quant-aimet
+  evaluation: onnx-cpu
+steps:
+  - id: data
+    kind: dataset.prepare
+    profile: training
+    params:
+      provider: torchvision
+      name: cifar10
+      task: classification
+      split_policy: official_train_90_10_plus_official_test
+      seed: 42
+      calibration:
+        source_split: train
+        count: 512
+        seed: 42
+      transforms:
+        training: cifar10_rgb224_shared_geometry_v1
+        evaluation: cifar10_rgb224_eval_v1
+        calibration: cifar10_rgb224_eval_v1
+      download: true
+
+  - id: teacher_init
+    kind: model.create
+    profile: training
+    params:
+      provider: torchvision
+      architecture: resnet18
+      task: classification
+      num_classes: 10
+      input_shape: [1, 3, 224, 224]
+      initialization:
+        kind: random
+      seed: 42
+
+  - id: teacher_fit
+    kind: train.fit
+    profile: training
+    inputs:
+      model: '@teacher_init.model'
+      dataset: '@data.dataset'
+    params:
+      engine: torch
+      mode: scratch
+      epochs: 20
+      batch_size: 64
+      seed: 42
+      optimizer: {name: adamw, lr: 0.001}
+      objective: {plugin: classification.cross_entropy}
+
+  - id: student_init
+    kind: model.create
+    profile: training
+    params:
+      provider: torchvision
+      architecture: mobilenet_v3_small
+      task: classification
+      num_classes: 10
+      input_shape: [1, 3, 224, 224]
+      initialization: {kind: random}
+      seed: 42
+
+  - id: student_fit
+    kind: train.fit
+    profile: training
+    inputs:
+      model: '@student_init.model'
+      teacher: '@teacher_fit.model'
+      dataset: '@data.dataset'
+    params:
+      engine: torch
+      mode: scratch
+      epochs: 20
+      batch_size: 64
+      seed: 42
+      optimizer: {name: adamw, lr: 0.001}
+      objective:
+        plugin: classification.kl_kd
+        temperature: 4.0
+        hard_weight: 0.5
+        soft_weight: 0.5
+
+  - id: fp_export
+    kind: export.create
+    profile: training
+    inputs: {model: '@student_fit.model'}
+    params:
+      format: onnx
+      target: ort_cpu_fp32
+      shape_policy: fixed
+      exporter_profile: validated_classification_onnx_v1
+
+  - id: ptq
+    kind: compression.quantize
+    profile: quantization
+    inputs:
+      source: '@fp_export.artifact'
+      dataset: '@data.dataset'
+    params:
+      plugin: aimet_onnx.ptq
+      split: calibration
+      target: trt_int8_symmetric
+      weight_bits: 8
+      activation_bits: 8
+      estimator: minmax
+
+  - id: quality
+    kind: evaluation.compare
+    profile: evaluation
+    inputs:
+      reference: '@fp_export.artifact'
+      candidate: '@ptq.artifact'
+      dataset: '@data.dataset'
+    params:
+      split: val
+      runtime: onnxruntime
+      metrics: [top1]
+      max_drop_pp: 1.0
+
+  - id: graph
+    kind: graph.inspect
+    profile: evaluation
+    inputs: {artifact: '@ptq.artifact'}
+    params: {include_qdq: true, format: html}

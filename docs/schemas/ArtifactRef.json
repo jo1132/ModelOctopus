@@ -1,0 +1,43 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "id": {
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "trainable_torch",
+        "onnx_fp",
+        "onnx_qdq",
+        "torch_export",
+        "tensorrt_engine",
+        "training_state",
+        "dataset",
+        "evaluation",
+        "pruning_plan"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "digest": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Digest",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "digest"
+  ],
+  "title": "ArtifactRef",
+  "type": "object"
+}

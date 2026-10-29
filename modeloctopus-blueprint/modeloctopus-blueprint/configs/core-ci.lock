@@ -1,0 +1,17 @@
+# Observed Linux x86_64 / Python 3.12 environment; see docs/environment-matrix.md.
+pydantic==2.12.3
+pydantic-core==2.41.4
+annotated-types==0.8.0
+typing-extensions==4.16.0
+typing-inspection==0.4.4
+PyYAML==6.0.3
+pytest==8.4.2
+ruff==0.14.3
+mypy==1.18.2
+types-PyYAML==6.0.12.20250915
+iniconfig==2.3.1
+pluggy==1.7.0
+Pygments==2.21.0
+packaging==26.3
+mypy_extensions==1.1.0
+pathspec==1.1.1

@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modeloctopus"
+version = "0.1.0"
+description = "Local model workflow contracts and planning core"
+requires-python = ">=3.11"
+dependencies = ["pydantic==2.12.3", "PyYAML==6.0.3"]
+
+[project.optional-dependencies]
+torch = ["torch==2.6.0"]
+vision = ["torchvision==0.21.0"]
+yolo = ["ultralytics==8.4.190"]
+onnx = ["onnx==1.23.2", "onnxruntime==1.31.1"]
+aimet = ["aimet-onnx"]
+pruning = ["torch-pruning"]
+trt = ["tensorrt"]
+viz = ["netron"]
+dev = ["pytest==8.4.2", "ruff==0.14.3", "mypy==1.18.2", "types-PyYAML==6.0.12.20250915"]
+
+[project.scripts]
+ef = "modeloctopus.cli:main"
+modeloctopus = "modeloctopus.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.mypy]
+files = ["src/modeloctopus"]
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.ruff]
+line-length = 100

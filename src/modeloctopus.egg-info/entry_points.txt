@@ -1,0 +1,3 @@
+[console_scripts]
+ef = modeloctopus.cli:main
+modeloctopus = modeloctopus.cli:main

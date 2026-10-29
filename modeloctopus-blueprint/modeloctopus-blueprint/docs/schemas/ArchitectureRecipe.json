@@ -1,0 +1,55 @@
+{
+  "$defs": {
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "factory": {
+      "title": "Factory",
+      "type": "string"
+    },
+    "revision": {
+      "title": "Revision",
+      "type": "string"
+    },
+    "kwargs": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "title": "Kwargs",
+      "type": "object"
+    },
+    "structural_edits": {
+      "items": {
+        "additionalProperties": {
+          "$ref": "#/$defs/JsonValue"
+        },
+        "type": "object"
+      },
+      "title": "Structural Edits",
+      "type": "array"
+    },
+    "expected_shapes": {
+      "additionalProperties": {
+        "items": {
+          "type": "integer"
+        },
+        "type": "array"
+      },
+      "title": "Expected Shapes",
+      "type": "object"
+    }
+  },
+  "required": [
+    "factory",
+    "revision"
+  ],
+  "title": "ArchitectureRecipe",
+  "type": "object"
+}

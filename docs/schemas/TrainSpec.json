@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "ObjectiveSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "plugin": {
+          "default": "classification.cross_entropy",
+          "title": "Plugin",
+          "type": "string"
+        },
+        "temperature": {
+          "default": 1.0,
+          "exclusiveMinimum": 0,
+          "title": "Temperature",
+          "type": "number"
+        },
+        "hard_weight": {
+          "default": 1.0,
+          "minimum": 0,
+          "title": "Hard Weight",
+          "type": "number"
+        },
+        "soft_weight": {
+          "default": 0.0,
+          "minimum": 0,
+          "title": "Soft Weight",
+          "type": "number"
+        }
+      },
+      "title": "ObjectiveSpec",
+      "type": "object"
+    },
+    "OptimizerSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "name": {
+          "default": "adamw",
+          "title": "Name",
+          "type": "string"
+        },
+        "lr": {
+          "default": 0.001,
+          "exclusiveMinimum": 0,
+          "title": "Lr",
+          "type": "number"
+        }
+      },
+      "title": "OptimizerSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "engine": {
+      "title": "Engine",
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "scratch",
+        "finetune",
+        "resume"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "epochs": {
+      "exclusiveMinimum": 0,
+      "title": "Epochs",
+      "type": "integer"
+    },
+    "batch_size": {
+      "default": 32,
+      "exclusiveMinimum": 0,
+      "title": "Batch Size",
+      "type": "integer"
+    },
+    "optimizer": {
+      "$ref": "#/$defs/OptimizerSpec"
+    },
+    "scheduler": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scheduler"
+    },
+    "amp": {
+      "default": false,
+      "title": "Amp",
+      "type": "boolean"
+    },
+    "seed": {
+      "default": 42,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "objective": {
+      "$ref": "#/$defs/ObjectiveSpec"
+    },
+    "resume_scope": {
+      "const": "epoch_boundary",
+      "default": "epoch_boundary",
+      "title": "Resume Scope",
+      "type": "string"
+    }
+  },
+  "required": [
+    "engine",
+    "mode",
+    "epochs"
+  ],
+  "title": "TrainSpec",
+  "type": "object"
+}

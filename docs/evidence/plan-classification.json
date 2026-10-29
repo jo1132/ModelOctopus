@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "project_root": "/workspace/modeloctopus-blueprint/modeloctopus-blueprint/workspace",
+  "steps": [
+    {
+      "id": "data",
+      "kind": "dataset.prepare",
+      "params": {
+        "schema_version": 1,
+        "provider": "torchvision",
+        "name": "cifar10",
+        "task": "classification",
+        "revision": null,
+        "source": null,
+        "split_policy": "official_train_90_10_plus_official_test",
+        "seed": 42,
+        "download": true,
+        "cache": null,
+        "calibration": {
+          "schema_version": 1,
+          "source_split": "train",
+          "count": 512,
+          "seed": 42
+        },
+        "transforms": {
+          "schema_version": 1,
+          "training": "cifar10_rgb224_shared_geometry_v1",
+          "evaluation": "cifar10_rgb224_eval_v1",
+          "calibration": "cifar10_rgb224_eval_v1"
+        },
+        "final_test_available": true,
+        "smoke_only": false
+      },
+      "inputs": {},
+      "outputs": {
+        "dataset": "dataset"
+      },
+      "profile": "train-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "teacher_init",
+      "kind": "model.create",
+      "params": {
+        "schema_version": 1,
+        "provider": "torchvision",
+        "architecture": "resnet18",
+        "task": "classification",
+        "revision": null,
+        "num_classes": 10,
+        "initialization": {
+          "schema_version": 1,
+          "kind": "random",
+          "weights": null,
+          "source": null,
+          "strict": true,
+          "head_policy": "preserve"
+        },
+        "input_shape": [
+          1,
+          3,
+          224,
+          224
+        ],
+        "serializer": "state_dict",
+        "seed": 42
+      },
+      "inputs": {},
+      "outputs": {
+        "model": "trainable_torch"
+      },
+      "profile": "train-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "student_init",
+      "kind": "model.create",
+      "params": {
+        "schema_version": 1,
+        "provider": "torchvision",
+        "architecture": "mobilenet_v3_small",
+        "task": "classification",
+        "revision": null,
+        "num_classes": 10,
+        "initialization": {
+          "schema_version": 1,
+          "kind": "random",
+          "weights": null,
+          "source": null,
+          "strict": true,
+          "head_policy": "preserve"
+        },
+        "input_shape": [
+          1,
+          3,
+          224,
+          224
+        ],
+        "serializer": "state_dict",
+        "seed": 42
+      },
+      "inputs": {},
+      "outputs": {
+        "model": "trainable_torch"
+      },
+      "profile": "train-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "teacher_fit",
+      "kind": "train.fit",
+      "params": {
+        "schema_version": 1,
+        "engine": "torch",
+        "mode": "scratch",
+        "epochs": 20,
+        "batch_size": 64,
+        "optimizer": {
+          "schema_version": 1,
+          "name": "adamw",
+          "lr": 0.001
+        },
+        "scheduler": null,
+        "amp": false,
+        "seed": 42,
+        "objective": {
+          "schema_version": 1,
+          "plugin": "classification.cross_entropy",
+          "temperature": 1.0,
+          "hard_weight": 1.0,
+          "soft_weight": 0.0
+        },
+        "resume_scope": "epoch_boundary"
+      },
+      "inputs": {
+        "model": "@teacher_init.model",
+        "dataset": "@data.dataset"
+      },
+      "outputs": {
+        "model": "trainable_torch",
+        "training_state": "training_state"
+      },
+      "profile": "train-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "student_fit",
+      "kind": "train.fit",
+      "params": {
+        "schema_version": 1,
+        "engine": "torch",
+        "mode": "scratch",
+        "epochs": 20,
+        "batch_size": 64,
+        "optimizer": {
+          "schema_version": 1,
+          "name": "adamw",
+          "lr": 0.001
+        },
+        "scheduler": null,
+        "amp": false,
+        "seed": 42,
+        "objective": {
+          "schema_version": 1,
+          "plugin": "classification.kl_kd",
+          "temperature": 4.0,
+          "hard_weight": 0.5,
+          "soft_weight": 0.5
+        },
+        "resume_scope": "epoch_boundary"
+      },
+      "inputs": {
+        "model": "@student_init.model",
+        "teacher": "@teacher_fit.model",
+        "dataset": "@data.dataset"
+      },
+      "outputs": {
+        "model": "trainable_torch",
+        "training_state": "training_state"
+      },
+      "profile": "train-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "fp_export",
+      "kind": "export.create",
+      "params": {
+        "schema_version": 1,
+        "format": "onnx",
+        "target": "ort_cpu_fp32",
+        "shape_policy": "fixed",
+        "exporter_profile": "validated_classification_onnx_v1",
+        "output_semantics": null
+      },
+      "inputs": {
+        "model": "@student_fit.model"
+      },
+      "outputs": {
+        "artifact": "onnx_fp"
+      },
+      "profile": "train-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "ptq",
+      "kind": "compression.quantize",
+      "params": {
+        "schema_version": 1,
+        "plugin": "aimet_onnx.ptq",
+        "split": "calibration",
+        "target": "trt_int8_symmetric",
+        "weight_bits": 8,
+        "activation_bits": 8,
+        "estimator": "minmax"
+      },
+      "inputs": {
+        "source": "@fp_export.artifact",
+        "dataset": "@data.dataset"
+      },
+      "outputs": {
+        "artifact": "onnx_qdq"
+      },
+      "profile": "quant-aimet",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "quality",
+      "kind": "evaluation.compare",
+      "params": {
+        "schema_version": 1,
+        "split": "val",
+        "runtime": "onnxruntime",
+        "metrics": [
+          "top1"
+        ],
+        "max_drop_pp": 1.0,
+        "evaluator": null,
+        "smoke_only": false
+      },
+      "inputs": {
+        "reference": "@fp_export.artifact",
+        "candidate": "@ptq.artifact",
+        "dataset": "@data.dataset"
+      },
+      "outputs": {
+        "report": "evaluation"
+      },
+      "profile": "onnx-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    },
+    {
+      "id": "graph",
+      "kind": "graph.inspect",
+      "params": {
+        "schema_version": 1,
+        "include_qdq": true,
+        "format": "html"
+      },
+      "inputs": {
+        "artifact": "@ptq.artifact"
+      },
+      "outputs": {
+        "report": "evaluation"
+      },
+      "profile": "onnx-cpu",
+      "capability": {
+        "schema_version": 1,
+        "status": "planned",
+        "reasons": [
+          "M1_PLUS_OPERATION_NOT_IMPLEMENTED"
+        ],
+        "extras": [],
+        "environment_profile": null,
+        "tested_versions": {},
+        "evidence_refs": []
+      },
+      "deferred": [
+        "class mapping/actual model structure",
+        "backend/hardware compatibility"
+      ]
+    }
+  ],
+  "executable": false
+}

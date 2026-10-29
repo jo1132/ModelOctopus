@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "profile": "train-cuda",
+  "python": "3.12.12",
+  "platform": "Linux-5.15.0-187-generic-x86_64-with-glibc2.41",
+  "packages": {
+    "torch": "2.6.0+cpu"
+  },
+  "docker_cli": null,
+  "nvidia_smi": "/usr/bin/nvidia-smi",
+  "validation": "not_run",
+  "status": "unverified_environment",
+  "reason": "CUDA_UNAVAILABLE"
+}

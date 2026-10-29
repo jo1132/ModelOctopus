@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: modeloctopus
+Version: 0.1.0
+Summary: Local model workflow contracts and planning core
+Requires-Python: >=3.11
+Requires-Dist: pydantic==2.12.3
+Requires-Dist: PyYAML==6.0.3
+Provides-Extra: torch
+Requires-Dist: torch==2.6.0; extra == "torch"
+Provides-Extra: vision
+Requires-Dist: torchvision==0.21.0; extra == "vision"
+Provides-Extra: yolo
+Requires-Dist: ultralytics==8.4.190; extra == "yolo"
+Provides-Extra: onnx
+Requires-Dist: onnx==1.23.2; extra == "onnx"
+Requires-Dist: onnxruntime==1.31.1; extra == "onnx"
+Provides-Extra: aimet
+Requires-Dist: aimet-onnx; extra == "aimet"
+Provides-Extra: pruning
+Requires-Dist: torch-pruning; extra == "pruning"
+Provides-Extra: trt
+Requires-Dist: tensorrt; extra == "trt"
+Provides-Extra: viz
+Requires-Dist: netron; extra == "viz"
+Provides-Extra: dev
+Requires-Dist: pytest==8.4.2; extra == "dev"
+Requires-Dist: ruff==0.14.3; extra == "dev"
+Requires-Dist: mypy==1.18.2; extra == "dev"
+Requires-Dist: types-PyYAML==6.0.12.20250915; extra == "dev"

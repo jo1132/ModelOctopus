@@ -1,0 +1,178 @@
+{
+  "$defs": {
+    "ArtifactRef": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "id": {
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "trainable_torch",
+            "onnx_fp",
+            "onnx_qdq",
+            "torch_export",
+            "tensorrt_engine",
+            "training_state",
+            "dataset",
+            "evaluation",
+            "pruning_plan"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "digest"
+      ],
+      "title": "ArtifactRef",
+      "type": "object"
+    },
+    "InitializationSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "kind": {
+          "default": "random",
+          "enum": [
+            "random",
+            "pretrained",
+            "weights",
+            "resume_ref"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "weights": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Weights"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ArtifactRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "strict": {
+          "default": true,
+          "title": "Strict",
+          "type": "boolean"
+        },
+        "head_policy": {
+          "default": "preserve",
+          "enum": [
+            "preserve",
+            "replace_head"
+          ],
+          "title": "Head Policy",
+          "type": "string"
+        }
+      },
+      "title": "InitializationSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "provider": {
+      "title": "Provider",
+      "type": "string"
+    },
+    "architecture": {
+      "title": "Architecture",
+      "type": "string"
+    },
+    "task": {
+      "enum": [
+        "classification",
+        "detection"
+      ],
+      "title": "Task",
+      "type": "string"
+    },
+    "revision": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Revision"
+    },
+    "num_classes": {
+      "exclusiveMinimum": 0,
+      "title": "Num Classes",
+      "type": "integer"
+    },
+    "initialization": {
+      "$ref": "#/$defs/InitializationSpec"
+    },
+    "input_shape": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Input Shape",
+      "type": "array"
+    },
+    "serializer": {
+      "default": "state_dict",
+      "title": "Serializer",
+      "type": "string"
+    },
+    "seed": {
+      "default": 42,
+      "title": "Seed",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "provider",
+    "architecture",
+    "task",
+    "num_classes"
+  ],
+  "title": "ModelSpec",
+  "type": "object"
+}

@@ -1,0 +1,65 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "status": {
+      "default": "planned",
+      "enum": [
+        "planned",
+        "experimental",
+        "supported",
+        "unsupported",
+        "unverified_environment"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "extras": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Extras",
+      "type": "array"
+    },
+    "environment_profile": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Environment Profile"
+    },
+    "tested_versions": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Tested Versions",
+      "type": "object"
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Refs",
+      "type": "array"
+    }
+  },
+  "title": "CapabilityReport",
+  "type": "object"
+}
